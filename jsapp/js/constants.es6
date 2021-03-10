@@ -281,6 +281,17 @@ new Set([
 ]).forEach((codename) => {META_QUESTION_TYPES[codename] = codename;});
 Object.freeze(META_QUESTION_TYPES);
 
+// submission data extras being added (by backend?)
+export const ADDITIONAL_SUBMISSION_PROPS = {};
+new Set([
+  '_id',
+  '_uuid',
+  '_submission_time',
+  '_submitted_by',
+  '_status',
+]).forEach((codename) => {ADDITIONAL_SUBMISSION_PROPS[codename] = codename;});
+Object.freeze(ADDITIONAL_SUBMISSION_PROPS);
+
 export const NAME_MAX_LENGTH = 255;
 
 /**
@@ -415,6 +426,7 @@ const constants = {
   ASSET_TYPES,
   QUESTION_TYPES,
   META_QUESTION_TYPES,
+  ADDITIONAL_SUBMISSION_PROPS,
   NAME_MAX_LENGTH,
   COMMON_QUERIES,
   ACCESS_TYPES,
