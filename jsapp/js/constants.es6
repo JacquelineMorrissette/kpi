@@ -265,6 +265,11 @@ export const QUESTION_TYPES = Object.freeze({
     faIcon: 'fa-lato-range',
     id: 'range',
   },
+  xml_external: {
+    label: t('External XML'),
+    faIcon: 'fa-external-link',
+    id: 'xml-external',
+  },
 });
 
 export const META_QUESTION_TYPES = {};
@@ -405,6 +410,7 @@ export const ROUTES = Object.freeze({
   FORM_SETTINGS: '/forms/:uid/settings',
   FORM_MEDIA: '/forms/:uid/settings/media',
   FORM_SHARING: '/forms/:uid/settings/sharing',
+  FORM_RECORDS: '/forms/:uid/settings/records',
   FORM_REST: '/forms/:uid/settings/rest',
   FORM_REST_HOOK: '/forms/:uid/settings/rest/:hookUid',
   FORM_KOBOCAT: '/forms/:uid/settings/kobocat',

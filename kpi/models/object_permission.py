@@ -1,6 +1,5 @@
 # coding: utf-8
 import copy
-import re
 from collections import defaultdict
 from typing import Union
 
@@ -8,7 +7,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser, Permission
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.shortcuts import _get_queryset
 from django_request_cache import cache_for_request
@@ -783,7 +782,7 @@ class ObjectPermissionMixin:
             user_ids = {x[0] for x in user_perm_ids}
             return User.objects.filter(pk__in=user_ids)
 
-    def has_perm(self, user_obj: models.Model, perm: str) -> bool:
+    def has_perm(self, user_obj: User, perm: str) -> bool:
         """
         Does `user_obj` have perm on this object? (True/False)
         """
@@ -811,6 +810,22 @@ class ObjectPermissionMixin:
             if fq_permission not in settings.ALLOWED_ANONYMOUS_PERMISSIONS:
                 return False
         return result
+
+    def has_perms(self, user_obj: User, perms: list, all_: bool = False) -> bool:  # noqa
+        """
+        Checks (at once) whether a user has several permissions on current
+        object.
+
+        Args:
+            user_obj (User): user to check
+            perms (list): List of code names (e.g. 'view_asset') to check
+            all_ (bool): Optional. If True, user must have all permissions
+
+        Returns:
+            bool
+        """
+        fn = any if not all_ else all
+        return fn(perm in perms for perm in self.get_perms(user_obj))
 
     @transaction.atomic
     def remove_perm(self, user_obj, perm, defer_recalc=False, skip_kc=False):

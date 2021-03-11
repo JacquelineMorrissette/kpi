@@ -126,6 +126,12 @@
       vertical-align: middle;
     }
   }
+
+  label.form-view__tab--label {
+    display: inline-block;
+    width: 70%;
+    vertical-align: middle;
+  }
 }
 
 // The main tabs on top
@@ -451,6 +457,19 @@
       margin: 0;
     }
   }
+
+  &.form-view__cell--error {
+    @extend .form-view__cell--warning;
+    background-color: $kobo-red-light;
+    color: $kobo-red-dark;
+    border: 1px solid $kobo-red;
+    padding: 0px;
+    i {
+      color: $kobo-red;
+      margin: 0px;
+    }
+  }
+
 
   &.form-view__cell--translation-modal-warning {
     margin-bottom: 20px;

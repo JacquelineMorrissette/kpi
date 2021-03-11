@@ -96,6 +96,20 @@ actions.misc = Reflux.createActions({
   getServerEnvironment: {children: ['completed', 'failed']},
 });
 
+actions.media = Reflux.createActions({
+  loadMedia: {children: ['completed', 'failed']},
+  uploadMedia: {children: ['completed', 'failed']},
+  deleteMedia: {children: ['completed', 'failed']},
+});
+
+actions.dataShare = Reflux.createActions({
+  attachToParent: {children: ['completed', 'failed']},
+  detachParent: {children: ['completed', 'failed']},
+  getAttachedParents: {children: ['completed', 'failed']},
+  getSharingEnabledAssets: {children: ['completed', 'failed']},
+  toggleDataSharing: {children: ['completed', 'failed']},
+});
+
 // TODO move these callbacks to `actions/permissions.es6` after moving
 // `actions.resources` to separate file (circular dependency issue)
 permissionsActions.assignAssetPermission.failed.listen(() => {
@@ -183,6 +197,126 @@ actions.resources.createImport.listen((params, onCompleted, onFailed) => {
       actions.resources.createImport.failed(response);
       if (typeof onFailed === 'function') {onFailed(response);}
     });
+});
+
+/*
+ * Dynamic data attachments
+ */
+actions.dataShare.attachToParent.listen((assetUid, data) => {
+  dataInterface.attachToParent(assetUid, data)
+    .done(() => {
+      actions.dataShare.attachToParent.completed(assetUid);
+    })
+    .fail((response) => {
+      actions.dataShare.attachToParent.failed(response)
+    })
+});
+
+actions.dataShare.detachParent.listen((attachmentUrl) => {
+  dataInterface.detachParent(attachmentUrl)
+    .done(() => {
+      actions.dataShare.detachParent.completed();
+    })
+    .fail((response) => {
+      actions.dataShare.detachParent.failed(response)
+    })
+});
+
+actions.dataShare.getAttachedParents.listen((assetUid) => {
+  dataInterface.getAttachedParents(assetUid)
+    .done((response) => {
+      if (response.results.length > 0) {
+        let allParents = [];
+        response.results.forEach((parent) => {
+          // Remove file extension
+          let filename = parent.filename.replace(/\.[^/.]+$/, '');
+          // Get Uid from url
+          let parentUid = parent.parent.match(/.*\/([^/]+)\//)[1];
+          allParents.push({
+            parentName: parent.parent_name,
+            parentUrl: parent.parent,
+            parentUid: parentUid,
+            filename: filename,
+            attachmentUrl: parent.url,
+          });
+          actions.dataShare.getAttachedParents.completed(allParents);
+        });
+      } else {
+        actions.dataShare.getAttachedParents.completed([]);
+      }
+    })
+    .fail(actions.dataShare.getAttachedParents.failed);
+});
+
+actions.dataShare.getSharingEnabledAssets.listen(() => {
+  dataInterface.getSharingEnabledAssets()
+    .done((response) => {
+      actions.dataShare.getSharingEnabledAssets.completed(response);
+    })
+    .fail(actions.dataShare.getSharingEnabledAssets.failed);
+});
+actions.dataShare.getSharingEnabledAssets.failed.listen(() => {
+  alertify.error(t('Failed to retrieve sharing enabled assets'));
+});
+
+actions.dataShare.toggleDataSharing.listen((uid, data) => {
+  dataInterface.toggleDataSharing(uid, data)
+    .done(actions.dataShare.toggleDataSharing.completed)
+    .fail((response) => {
+      actions.dataShare.toggleDataSharing.failed(response);
+    });
+});
+actions.dataShare.toggleDataSharing.failed.listen((response) => {
+  alertify.error(response.responseJSON.detail);
+});
+
+/*
+ * Form media endpoint actions
+ */
+actions.media.uploadMedia.listen((uid, formMediaJSON) => {
+  dataInterface.postFormMedia(uid, formMediaJSON)
+    .done(() => {
+      actions.media.uploadMedia.completed(uid);
+    })
+    .fail((response) => {
+      actions.media.uploadMedia.failed(response);
+    });
+});
+actions.media.uploadMedia.completed.listen((uid) => {
+  actions.media.loadMedia(uid);
+});
+actions.media.uploadMedia.failed.listen(() => {
+  alertify.error(t('Could not upload your media'));
+});
+
+actions.media.loadMedia.listen((uid) => {
+  dataInterface.getFormMedia(uid)
+    .done((response) => {
+      actions.media.loadMedia.completed(response);
+    })
+    .fail((response) => {
+      actions.media.loadMedia.failed(response);
+    });
+});
+actions.media.loadMedia.failed.listen(() => {
+  alertify.error(t('Something went wrong with getting your media'));
+});
+
+actions.media.deleteMedia.listen((uid, url) => {
+  dataInterface.deleteFormMedia(url)
+    .done(() => {
+      actions.media.deleteMedia.completed(uid);
+    })
+    .fail((response) => {
+      actions.media.deleteMedia.failed(response);
+    });
+});
+actions.media.deleteMedia.completed.listen((uid) => {
+  notify(t('Successfully deleted media'));
+  actions.media.loadMedia(uid);
+});
+actions.media.deleteMedia.failed.listen(() => {
+  alertify.error(t('Failed to delete media!'));
 });
 
 actions.resources.createSnapshot.listen(function(details){
@@ -288,9 +422,9 @@ actions.resources.setDeploymentActive.completed.listen((result) => {
   }
 });
 
-actions.resources.getAssetFiles.listen(function(assetId) {
+actions.resources.getAssetFiles.listen(function(assetId, fileType) {
   dataInterface
-    .getAssetFiles(assetId)
+    .getAssetFiles(assetId, fileType)
     .done(actions.resources.getAssetFiles.completed)
     .fail(actions.resources.getAssetFiles.failed);
 });

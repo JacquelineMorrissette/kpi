@@ -17,6 +17,7 @@ from django.db import models
 from django.db import transaction
 from django.db.models import Exists, OuterRef, Prefetch, Q
 from django.utils.translation import ugettext_lazy as _
+from rest_framework.reverse import reverse
 from taggit.managers import TaggableManager, _TaggableManager
 from taggit.utils import require_instance_manager
 
@@ -51,8 +52,13 @@ from kpi.constants import (
     SUFFIX_SUBMISSIONS_PERMS,
 )
 from kpi.deployment_backends.mixin import DeployableMixin
-from kpi.exceptions import BadPermissionsException
-from kpi.fields import KpiUidField, LazyDefaultJSONBField
+from kpi.exceptions import BadPermissionsException, PairedParentException
+from kpi.fields import (
+    KpiUidField,
+    LazyDefaultJSONBField,
+)
+from kpi.models.asset_file import AssetFile
+from kpi.interfaces.open_rosa import OpenRosaFormListInterface
 from kpi.utils.asset_content_analyzer import AssetContentAnalyzer
 from kpi.utils.asset_translation_utils import (
     compare_translations,
@@ -66,6 +72,7 @@ from kpi.utils.asset_translation_utils import (
 )
 from kpi.utils.autoname import (autoname_fields_in_place,
                                 autovalue_choices_in_place)
+from kpi.utils.hash import get_hash
 from kpi.utils.kobo_to_xlsform import (expand_rank_and_score_in_place,
                                        replace_with_autofields,
                                        remove_empty_expressions_in_place)
@@ -488,6 +495,28 @@ class Asset(ObjectPermissionMixin,
     # provided by `DeployableMixin`
     _deployment_data = JSONBField(default=dict)
 
+    # JSON with subset of fields and allowed users to use it
+    # {
+    #   'enable': True,
+    #   'fields': []  # shares all when empty
+    # }
+    data_sharing = LazyDefaultJSONBField(default=dict)
+    # JSON with parent assets information
+    # {
+    #   <parent_uid>: {
+    #       'fields': []  # includes all fields shared with parent when empty
+    #       'paired_data_uid': 'pdxxxxxxx'  # auto-generated read-only
+    #       'filename: 'xxxxx.xml'
+    #   },
+    #   ...
+    #   <parent_uid>: {
+    #       'fields': []
+    #       'paired_data_uid': 'pdxxxxxxx'
+    #       'filename: 'xxxxx.xml'
+    #   }
+    # }
+    paired_data = LazyDefaultJSONBField(default=dict)
+
     objects = AssetManager()
 
     @property
@@ -729,6 +758,10 @@ class Asset(ObjectPermissionMixin,
         )
 
     @property
+    def deployment_data(self):
+        return self._deployment_data
+
+    @property
     def deployed_versions(self):
         return self.asset_versions.filter(deployed=True).order_by(
             '-date_modified')
@@ -801,6 +834,41 @@ class Asset(ObjectPermissionMixin,
             str(asset_type_label)
         )
         return label
+
+    def get_paired_parent(self, paired_data_uid: str) -> Union['Asset', None]:
+
+        # Validate `paired_data_uid`, i.e., must exist in `self.paired_data`  # noqa
+        parent_uid = None
+        for key, values in self.paired_data.items():
+            if values['paired_data_uid'] == paired_data_uid:
+                parent_uid = key
+                break
+
+        if not parent_uid:
+            return None
+
+        try:
+            parent_asset = Asset.objects.get(uid=parent_uid)
+        except Asset.DoesNotExist:
+            return None
+
+        # Data sharing must be enabled on the parent
+        parent_data_sharing = parent_asset.data_sharing
+        if not parent_data_sharing.get('enabled'):
+            return None
+
+        # Validate `self.owner` is still allowed to see parent data
+        # ToDo : `self.owner` should have `PERM_VIEW_ASSET` on parent too
+        allowed_users = parent_data_sharing.get('users', [])
+        if allowed_users and self.owner.username not in allowed_users:
+            return None
+
+        if not parent_asset.has_deployment:
+            return None
+
+        self.__parent_paired_asset = parent_asset
+
+        return parent_asset
 
     def get_partial_perms(
         self, user_id: int, with_filters: bool = False
@@ -877,6 +945,25 @@ class Asset(ObjectPermissionMixin,
             return versions[0]
         except IndexError:
             return None
+
+    @property
+    def paired_data_fields(self):
+        try:
+            parent_asset = self.__parent_paired_asset
+        except AttributeError:
+            raise PairedParentException
+
+        parent_fields = parent_asset.data_sharing['fields']
+        asset_fields = self.paired_data[parent_asset.uid]['fields']
+
+        if parent_fields and asset_fields:
+            return list(set(parent_fields).intersection(set(asset_fields)))
+
+        if not asset_fields:
+            return parent_fields
+
+        if not parent_fields:
+            return asset_fields
 
     @staticmethod
     def optimize_queryset_for_list(queryset):
@@ -964,6 +1051,19 @@ class Asset(ObjectPermissionMixin,
         self._populate_report_styles()
 
         _create_version = kwargs.pop('create_version', True)
+
+        # Race condition may occur when deploying because asset's files
+        # synchronization is delegated to Celery and happens in the background.
+        # `tasks.sync_media_files()` is calling `asset.deployment.set_status()`
+        # internally which modifies asset too.
+        # See `BaseDeploymentBackend.set_status()`
+        refresh_status = kwargs.pop('refresh_status', False)
+        if refresh_status:
+            deployment_data = self._deployment_data.copy()
+            self.refresh_from_db(fields=['_deployment_data'])
+            deployment_data['status'] = self._deployment_data.get('status')
+            self._deployment_data = deployment_data
+
         super().save(*args, **kwargs)
 
         # Update languages for parent and previous parent.
@@ -986,8 +1086,12 @@ class Asset(ObjectPermissionMixin,
                 self.parent.update_languages([self])
             else:
                 # Otherwise, because we cannot know which languages are from
-                # this object, update will be perform with all parent's children.
+                # this object, update will be perform with all parent's
+                # children.
                 self.parent.update_languages()
+
+        if self.has_deployment:
+            self.deployment.sync_media_files(AssetFile.PAIRED_DATA)
 
         if _create_version:
             self.create_version()
@@ -1269,7 +1373,10 @@ class Asset(ObjectPermissionMixin,
             clean_up_table()
 
 
-class AssetSnapshot(models.Model, XlsExportable, FormpackXLSFormUtils):
+class AssetSnapshot(OpenRosaFormListInterface,
+                    models.Model,
+                    XlsExportable,
+                    FormpackXLSFormUtils):
     """
     This model serves as a cache of the XML that was exported by the installed
     version of pyxform.
@@ -1296,6 +1403,56 @@ class AssetSnapshot(models.Model, XlsExportable, FormpackXLSFormUtils):
     @property
     def content(self):
         return self.source
+
+    @property
+    def description(self):
+        """
+        Implements `OpenRosaFormListInterface.description`
+        """
+        return self.asset.settings.get('description', '')
+
+    @property
+    def form_id(self):
+        """
+        Implements `OpenRosaFormListInterface.form_id()`
+        """
+        return self.uid
+
+    def get_download_url(self, request):
+        """
+        Implements `OpenRosaFormListInterface.get_download_url()`
+        """
+        return reverse(
+            viewname='assetsnapshot-detail',
+            format='xml',
+            kwargs={'uid': self.uid},
+            request=request
+        )
+
+    def get_manifest_url(self, request):
+        """
+        Implements `OpenRosaFormListInterface.get_manifest_url()`
+        """
+        return reverse(
+            viewname='assetsnapshot-manifest',
+            format='xml',
+            kwargs={'uid': self.uid},
+            request=request
+        )
+
+    @property
+    def hash(self):
+        """
+        Implements `OpenRosaFormListInterface.hash()`
+        """
+        return f'md5:{get_hash(self.xml)}'
+
+    @property
+    def name(self):
+        """
+        Implements `OpenRosaFormListInterface.name()`
+        """
+        return self.asset.name
 
     def save(self, *args, **kwargs):
         if self.asset is not None:

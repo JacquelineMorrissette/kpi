@@ -217,6 +217,67 @@ export var dataInterface;
     },
 
     /*
+     * form media
+     */
+    postFormMedia (uid, data) {
+      return $ajax({
+        method: 'POST',
+        url: `${ROOT_URL}/api/v2/assets/${uid}/files/`,
+        data: data,
+      });
+    },
+    getFormMedia (uid) {
+      return $ajax({
+        method: 'GET',
+        url: `${ROOT_URL}/api/v2/assets/${uid}/files.json?file_type=form_media`,
+      });
+    },
+    deleteFormMedia(url) {
+      return $ajax({
+        method: 'DELETE',
+        url: url,
+      });
+    },
+
+    /*
+     * TODO: #2767 Dynamic data sharing, match with implemented API
+     */
+    attachToParent(assetUid, data) {
+      return $ajax({
+        url: `${ROOT_URL}/api/v2/assets/${assetUid}/paired-data/`,
+        method: 'POST',
+        data: data,
+        contentType: 'application/json'
+      });
+    },
+    detachParent(attachmentUrl) {
+      return $ajax({
+        url: attachmentUrl,
+        method: 'DELETE',
+      });
+    },
+    getAttachedParents(assetUid) {
+      return $ajax({
+        url: `${ROOT_URL}/api/v2/assets/${assetUid}/paired-data/`,
+        method: 'GET',
+      });
+    },
+    getSharingEnabledAssets() {
+      return $ajax({
+        url: `${ROOT_URL}/api/v2/assets/?q=data_sharing__enabled:True`,
+        method: 'GET',
+      });
+    },
+    toggleDataSharing(assetUid, data) {
+      return $ajax({
+        url: `${ROOT_URL}/api/v2/assets/${assetUid}/`,
+        method: 'PATCH',
+        data: data,
+        contentType: 'application/json'
+      });
+    },
+
+    /*
      * permissions
      */
 
@@ -698,9 +759,9 @@ export var dataInterface;
         contentType: false
       });
     },
-    getAssetFiles(uid) {
+    getAssetFiles(uid, fileType) {
       return $ajax({
-        url: `${ROOT_URL}/api/v2/assets/${uid}/files/`,
+        url: `${ROOT_URL}/api/v2/assets/${uid}/files/?file_type=${fileType}`,
         method: 'GET'
       });
     },

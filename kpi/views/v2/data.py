@@ -13,7 +13,9 @@ from rest_framework.pagination import _positive_int as positive_int
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
-from kpi.constants import INSTANCE_FORMAT_TYPE_JSON
+from kpi.constants import (
+    INSTANCE_FORMAT_TYPE_JSON,
+)
 from kpi.exceptions import ObjectDeploymentDoesNotExist
 from kpi.models import Asset
 from kpi.paginators import DataPagination
@@ -263,7 +265,7 @@ class DataViewSet(AssetNestedObjectViewsetMixin, NestedViewSetMixin,
     renderer_classes = (renderers.BrowsableAPIRenderer,
                         renderers.JSONRenderer,
                         SubmissionGeoJsonRenderer,
-                        SubmissionXMLRenderer
+                        SubmissionXMLRenderer,
                         )
     permission_classes = (SubmissionPermission,)
     pagination_class = DataPagination
@@ -273,8 +275,9 @@ class DataViewSet(AssetNestedObjectViewsetMixin, NestedViewSetMixin,
         Returns the deployment for the asset specified by the request
         """
         if not self.asset.has_deployment:
-            raise ObjectDeploymentDoesNotExist(_('The specified asset has not been '
-                                                 'deployed'))
+            raise ObjectDeploymentDoesNotExist(
+                _('The specified asset has not been deployed')
+            )
 
         return self.asset.deployment
 
