@@ -344,8 +344,6 @@ new Set([
 ]).forEach((kind) => {GROUP_TYPES_END[kind] = kind;});
 Object.freeze(GROUP_TYPES_END);
 
-export const FORM_VERSION_NAME = '__version__';
-
 // a custom question type for score
 export const SCORE_ROW_TYPE = 'score__row';
 
@@ -439,7 +437,6 @@ const constants = {
   ACCESS_TYPES,
   GROUP_TYPES_BEGIN,
   GROUP_TYPES_END,
-  FORM_VERSION_NAME,
   SCORE_ROW_TYPE,
   RANK_LEVEL_TYPE,
   DEPLOYMENT_CATEGORIES,
