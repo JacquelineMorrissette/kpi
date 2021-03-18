@@ -17,7 +17,6 @@ jobs:
         run: cd kpi/
         
       - name: Update Libraries
-        run: apt update
       - run: apt install translate-toolkit 
 
       - name: Install KPI requirements
