@@ -23,7 +23,7 @@ jobs:
         run: pip install pip-tools
         
       - name: Install KPI requirements
-        run: pip-sync dependencies/pip/requirements.txt
+        run: pip install dependencies/pip/requirements.txt
         
       - name: Install Transifex
         run: pip3 install transifex-client
