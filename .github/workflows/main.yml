@@ -34,7 +34,7 @@ jobs:
         run: pip3 install transifex-client
            
       - name: Run make translation po file
-        run: ./manage.py makemessages --locale en
+        run: sudo ./manage.py makemessages --locale en
 
       - name: Run json2po
         run: json2po jsapps/compiled/extracted-strings.json locale/en/LC_MESSAGES/djangojs.po
