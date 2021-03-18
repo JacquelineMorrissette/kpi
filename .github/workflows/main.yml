@@ -22,7 +22,7 @@ jobs:
       - name: Create virtualenv
         run: pip install virtualenv
       - run: virtualenv kpi
-      - run: source mypython/bin/activate
+      - run: source kpi/bin/activate
         
       - name: Install pip-tools
         run: pip install pip-tools
