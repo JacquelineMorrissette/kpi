@@ -32,6 +32,6 @@ jobs:
         run: json2po jsapps/compiled/extracted-strings.json locale/en/LC_MESSAGES/djangojs.po
       
       - name: Run Transifex
-        run: |
-            cd locale
-            tx push -s
+        run: cd locale
+      
+      - run: tx push -s
