@@ -12,17 +12,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Change Directories
-        run: cd kpi/
-        
-      - name: Intsall translate-toolkit
-        run: sudo apt install translate-toolkit
       
       - name: Create virtualenv
         run: pip install virtualenv
       - run: virtualenv kpi
       - run: source kpi/bin/activate
+      
+      - name: Change Directories
+        run: cd kpi/
+        
+      - name: Intsall translate-toolkit
+        run: sudo apt install translate-toolkit
         
       - name: Install pip-tools
         run: pip install pip-tools
