@@ -17,15 +17,11 @@ jobs:
         run: cd kpi/
         
       - name: Update Libraries
-        run: |
-          apt update
-          apt install translate-toolkit 
+        run: apt update
+      - run: apt install translate-toolkit 
 
       - name: Install KPI requirements
         run: pip-sync dependencies/requirements.txt
-      
-      - name: Install translate-toolkit
-        run: 
         
       - name: Install Transifex
         run: pip3 install transifex-client
