@@ -16,9 +16,12 @@ jobs:
       - name: Change Directories
         run: cd kpi/
         
-      - name: Update Libraries
+      - name: Intsall translate-toolkit
         run: sudo apt install translate-toolkit 
-
+        
+      - name: Install pip-tools
+        run: pip install pip-tools
+        
       - name: Install KPI requirements
         run: pip-sync dependencies/requirements.txt
         
