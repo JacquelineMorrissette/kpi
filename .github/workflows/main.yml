@@ -41,5 +41,7 @@ jobs:
       
       - name: Run Transifex
         run: cd locale
-      
       - run: tx push -s
+          with:
+            api-token: ${{ secrets.TRANSIFEX_API }}
+    
