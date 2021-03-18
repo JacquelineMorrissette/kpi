@@ -21,14 +21,14 @@ jobs:
       - name: Change Directories
         run: cd kpi/
         
-      - name: Intsall translate-toolkit
-        run: sudo apt install translate-toolkit
-        
       - name: Install pip-tools
         run: pip install pip-tools
         
       - name: Install KPI requirements
         run: pip-sync dependencies/pip/requirements.txt
+        
+      - name: Intsall translate-toolkit
+        run: sudo apt install translate-toolkit
         
       - name: Install Transifex
         run: pip3 install transifex-client
