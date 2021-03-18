@@ -17,7 +17,12 @@ jobs:
         run: cd kpi/
         
       - name: Intsall translate-toolkit
-        run: sudo apt install translate-toolkit 
+        run: sudo apt install translate-toolkit
+      
+      - name: Create virtualenv
+        run: pip install virtualenv
+      - run: virtualenv kpi
+      - run: source mypython/bin/activate
         
       - name: Install pip-tools
         run: pip install pip-tools
