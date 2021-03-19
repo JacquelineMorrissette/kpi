@@ -13,16 +13,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Create virtualenv
-        run: pip install virtualenv
-      - run: virtualenv kpi
-      - run: source kpi/bin/activate
-      
+#       - name: Create virtualenv
+#         run: pip install virtualenv
+#       - run: virtualenv kpi
+#       - run: source kpi/bin/activate
+#       
       - name: Change Directories
         run: cd kpi/
         
-#       - name: Install pip-tools
-#         run: sudo pip install pip-tools
+      - name: Set variables
+        run: export api = ${{ secrets.TRANSIFEX_API }}
+        
+      - name: Install Expect
+        run: sudo apt-get install expect
         
       - name: Install KPI requirements
         run: sudo pip install -r dependencies/pip/requirements.txt
@@ -41,7 +44,4 @@ jobs:
       
       - name: Run Transifex
         run: cd locale
-      - run: tx push -s
-          with:
-            api-token: ${{ secrets.TRANSIFEX_API }}
-    
+      - run: ./transifex-connect
