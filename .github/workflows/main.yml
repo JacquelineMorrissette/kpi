@@ -20,10 +20,7 @@ jobs:
 #       
       - name: Change Directories
         run: cd kpi/
-        
-      - name: Set variables
-        run: export api = ${{ secrets.TRANSIFEX_API }}
-        
+             
       - name: Install Expect
         run: sudo apt-get install expect
         
