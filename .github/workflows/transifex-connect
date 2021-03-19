@@ -1,6 +1,0 @@
-#!/usr/bin/expect -f
-spawn ./transifex-run
-
-expect "[?] Enter your api token: "
-
-send -- ${{ secrets.TRANSIFEX_API }}
