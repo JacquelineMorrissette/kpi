@@ -38,7 +38,7 @@ jobs:
         run: sudo apt install dos2unix
         
       - run: dos2unix transifex-connect
-      - run: dos2unix transifec-run
+      - run: dos2unix transifex-run
       
       - name: Run Transifex
         run: sudo ./transifex-connect
