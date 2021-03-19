@@ -44,3 +44,5 @@ jobs:
       
       - name: Run Transifex
         run: ./transifex-connect
+        env: 
+          API = ${{ secrets.TRANSIFEX_API }}
