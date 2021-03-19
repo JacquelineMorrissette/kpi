@@ -12,12 +12,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
-#       - name: Create virtualenv
-#         run: pip install virtualenv
-#       - run: virtualenv kpi
-#       - run: source kpi/bin/activate
-#       
+           
       - name: Change Directories
         run: cd kpi/
              
@@ -38,6 +33,12 @@ jobs:
 
       - name: Run json2po
         run: json2po jsapps/compiled/extracted-strings.json locale/en/LC_MESSAGES/djangojs.po
+      
+      - name: Install dos2unix
+        run: sudo apt install dos2unix
+        
+      - run: dos2unix transifex-connect
+      - run: dos2unix transifec-run
       
       - name: Run Transifex
         run: sudo ./transifex-connect
