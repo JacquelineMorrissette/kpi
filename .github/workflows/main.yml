@@ -43,4 +43,4 @@ jobs:
       - run: chmod u+x ./transifex-run
       
       - name: Run Transifex
-        run: TRANSIFEX_API=${{ secrets.TRANSIFEX_API }} sh transifex-connect
+        run: TRANSIFEX_API=${{ secrets.TRANSIFEX_API }} sh ./transifex-connect
