@@ -19,20 +19,20 @@ jobs:
       - name: Install Expect
         run: sudo apt-get install expect
         
-      - name: Install KPI requirements
-        run: sudo pip install -r dependencies/pip/requirements.txt
+#       - name: Install KPI requirements
+#         run: sudo pip install -r dependencies/pip/requirements.txt
         
-      - name: Intsall translate-toolkit
-        run: sudo apt install translate-toolkit
+#       - name: Intsall translate-toolkit
+#         run: sudo apt install translate-toolkit
         
-      - name: Install Transifex
-        run: sudo pip3 install transifex-client
+#       - name: Install Transifex
+#         run: sudo pip3 install transifex-client
            
-      - name: Run make translation po file
-        run: sudo ./manage.py makemessages --locale en
+#       - name: Run make translation po file
+#         run: sudo ./manage.py makemessages --locale en
 
-      - name: Run json2po
-        run: json2po jsapps/compiled/extracted-strings.json locale/en/LC_MESSAGES/djangojs.po
+#       - name: Run json2po
+#         run: json2po jsapps/compiled/extracted-strings.json locale/en/LC_MESSAGES/djangojs.po
       
       - name: Install dos2unix
         run: sudo apt install dos2unix
