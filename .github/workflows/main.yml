@@ -44,4 +44,4 @@ jobs:
       
       - name: Run Transifex
         run: export TRANSIFEX_API=${{ secrets.TRANSIFEX_API }}
-      - run: ./transifex-connect
+      - run: . transifex-connect
