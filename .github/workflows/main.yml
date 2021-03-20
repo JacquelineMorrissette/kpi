@@ -37,10 +37,10 @@ jobs:
       - name: Install dos2unix
         run: sudo apt install dos2unix
         
-#       - run: dos2unix transifex-connect
-#       - run: dos2unix transifex-run
-#       - run: chmod u+x ./transifex-connect
-#       - run: chmod u+x ./transifex-run
+      - run: dos2unix transifex-connect
+      - run: dos2unix transifex-run
+      - run: chmod u+x ./transifex-connect
+      - run: chmod u+x ./transifex-run
       
       - name: Run Transifex
         run: sh ./transifex-connect.sh
