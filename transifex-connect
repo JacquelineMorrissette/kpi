@@ -1,6 +1,4 @@
 #!/usr/bin/expect -f
 spawn ./transifex-run
-
 expect "Enter your api token: "
-
 send -- $TRANSIFEX_API
