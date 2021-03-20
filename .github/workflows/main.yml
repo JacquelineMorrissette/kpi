@@ -45,4 +45,4 @@ jobs:
       - name: Run Transifex
         env: 
           TRANSIFEX_API: ${{ secrets.TRANSIFEX_API }}
-        run: sudo ./transifex-connect
+        run: ./transifex-connect
