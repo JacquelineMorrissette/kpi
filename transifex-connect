@@ -1,4 +1,6 @@
-#!/usr/bin/expect -f
+#!/bin/bash
+/usr/bin/expect -c '
 spawn ./transifex-run
 expect "Enter your api token: "
-send -- $TRANSIFEX_API
+send -- '$TRANSIFEX_API'\r
+expect eof'
