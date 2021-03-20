@@ -3,4 +3,4 @@ spawn ./transifex-run
 
 expect "[?] Enter your api token: "
 
-send -- $API
+send -- "$TRANSIFEX_API"
