@@ -43,6 +43,6 @@ jobs:
       - run: chmod u+x ./transifex-run
       
       - name: Run Transifex
-        run: ./transifex-connect
+        run: sh ./transifex-connect.sh
         env: 
           TRANSIFEX_API: ${{ secrets.TRANSIFEX_API }}
