@@ -39,8 +39,8 @@ jobs:
         
       - run: dos2unix transifex-connect
       - run: dos2unix transifex-run
-      - run: chmod -x ./transifex-connect
-      - run: chmod -x ./transifex-run
+      - run: chmod u+x ./transifex-connect
+      - run: chmod u+x ./transifex-run
       
       - name: Run Transifex
         env: 
