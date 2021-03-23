@@ -16,7 +16,7 @@ jobs:
       - name: Change Directories
         run: cd kpi/
       - run: cd locale
-      - run: git clone https://github.com/kobotoolbox/form-builder-translations.git
+      - run: git clone https://github.com/kobotoolbox/form-builder-translations.git .
       - run: cd ..
              
       - name: Install Expect
@@ -36,14 +36,6 @@ jobs:
 
       - name: Run json2po
         run: json2po jsapps/compiled/extracted-strings.json locale/en/LC_MESSAGES/djangojs.po
-      
-      - name: Install dos2unix
-        run: sudo apt install dos2unix
-        
-      - run: dos2unix transifex-connect
-      - run: dos2unix transifex-run
-      - run: chmod u+x ./transifex-connect
-      - run: chmod u+x ./transifex-run
       
       - name: Run Transifex
         with:
