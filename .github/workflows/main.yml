@@ -17,6 +17,7 @@ jobs:
         run: cd kpi/
       - run: cd locale
       - run: git clone https://github.com/kobotoolbox/form-builder-translations.git
+      - run: cd ..
              
       - name: Install Expect
         run: sudo apt-get install expect
