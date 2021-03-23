@@ -46,6 +46,7 @@ jobs:
       - run: chmod u+x ./transifex-run
       
       - name: Run Transifex
-        run: ./transifex-connect
-        env: 
-          TRANSIFEX_API: ${{ secrets.TRANSIFEX_API }}
+        with:
+            TX_TOKEN: ${{ secrets.TRANSIFEX_API }}
+            translations_folder: locale
+        uses: docker://sergioisidoro/github-transifex-action:v0.2.0
