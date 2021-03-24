@@ -27,7 +27,7 @@ jobs:
       - name: Install webpack
         run: npm install webpack
       - name: Run NPM build
-        run: npm build
+        run: npm run build
       - name: Compile Frontend Strings
         run: node ./scripts/generate_icons.js
         
