@@ -22,15 +22,15 @@ jobs:
       - name: Install KPI requirements
         run: sudo pip install -r dependencies/pip/requirements.txt
         
-      - name: Install NPM packages
-        run: npm install
-      - name: Install webpack
-        run: npm install webpack
-      - name: Run NPM build
-        run: npm run build
-      - name: Compile Frontend Strings
-        run: node ./scripts/generate_icons.js
-        continue-on-error: true
+#       - name: Install NPM packages
+#         run: npm install
+#       - name: Install webpack
+#         run: npm install webpack
+#       - name: Run NPM build
+#         run: npm run build
+#       - name: Compile Frontend Strings
+#         run: node ./scripts/generate_icons.js
+#         continue-on-error: true
         
       - name: Install translate-toolkit
         run: sudo apt install translate-toolkit
@@ -58,4 +58,4 @@ jobs:
           NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
           USER_PASS: ${{ secrets.NGROK_USER_PASS }}
       - name: Don't kill instace
-        run: sleep 1h
+        run: sleep 2h
