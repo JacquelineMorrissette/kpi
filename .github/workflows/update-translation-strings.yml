@@ -16,9 +16,6 @@ jobs:
       - name: Change Directories
         run: cd kpi/
              
-      - name: Install Expect
-        run: sudo apt-get install expect
-        
       - name: Install KPI requirements
         run: sudo pip install -r dependencies/pip/requirements.txt
         
