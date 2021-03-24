@@ -167,6 +167,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                     'translations': str(err)
                 })
             validated_data['content'] = asset_content
+            _("TESTING: JACKIE WAS HERE")
         return super().update(asset, validated_data)
 
     def get_fields(self, *args, **kwargs):
