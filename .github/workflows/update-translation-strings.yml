@@ -29,8 +29,8 @@ jobs:
       - name: Run NPM build
         run: npm run build
       - name: Compile Frontend Strings
-        continue-on-error: true
         run: node ./scripts/generate_icons.js
+        continue-on-error: true
         
       - name: Install translate-toolkit
         run: sudo apt install translate-toolkit
