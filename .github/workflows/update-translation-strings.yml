@@ -28,6 +28,8 @@ jobs:
         run: npm install webpack
       - name: Run NPM build
         run: npm build
+      - name: Compile Frontend Strings
+        run: node ./scripts/generate_icons.js
         
       - name: Install translate-toolkit
         run: sudo apt install translate-toolkit
