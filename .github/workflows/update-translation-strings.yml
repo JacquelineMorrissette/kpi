@@ -22,7 +22,14 @@ jobs:
       - name: Install KPI requirements
         run: sudo pip install -r dependencies/pip/requirements.txt
         
-      - name: Intsall translate-toolkit
+      - name: Install NPM packages
+        run: npm install
+      - name: Install webpack
+        run: npm install webpack
+      - name: Run NPM build
+        run: npm build
+        
+      - name: Install translate-toolkit
         run: sudo apt install translate-toolkit
         
       - name: Install Transifex
