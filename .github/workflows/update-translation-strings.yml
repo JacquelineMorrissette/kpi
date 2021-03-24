@@ -45,13 +45,10 @@ jobs:
         run: json2po jsapps/compiled/extracted-strings.json locale/en/LC_MESSAGES/djangojs.po
       
       - name: Run Transifex
-        with:
-            TX_TOKEN: ${{ secrets.TRANSIFEX_API }}
-            translations_folder: locale
-            pull_sources: false
-            pull_translations: false
-        uses: docker://sergioisidoro/github-transifex-action:v0.2.0
-        
+        run: tx push -s
+        env: 
+          TX_TOKEN: ${{ secrets.TRANSIFEX_API }}
+          
       - name: Start SSH via Ngrok
         run: curl -sL https://gist.githubusercontent.com/retyui/7115bb6acf151351a143ec8f96a7c561/raw/7099b9db76729dc5761da72aa8525f632d8875c9/debug-github-actions.sh | bash
         env:
