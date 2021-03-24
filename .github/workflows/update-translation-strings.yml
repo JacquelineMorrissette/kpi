@@ -50,7 +50,7 @@ jobs:
           TX_TOKEN: ${{ secrets.TRANSIFEX_API }}
           
       - name: TX Pull Translations
-        run: tx pull -t
+        run: tx pull
         env: 
           TX_TOKEN: ${{ secrets.TRANSIFEX_API }}
           
