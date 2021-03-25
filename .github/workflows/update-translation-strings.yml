@@ -39,7 +39,7 @@ jobs:
         run: sudo ./manage.py makemessages --locale en
 
       - name: Run json2po
-        run: json2po jsapp/compiled/extracted-strings.json locale/en/LC_MESSAGES/djangojs.po
+        run: sudo json2po jsapp/compiled/extracted-strings.json locale/en/LC_MESSAGES/djangojs.po
       
 #       - name: Run Transifex
 #         run: tx push -s
