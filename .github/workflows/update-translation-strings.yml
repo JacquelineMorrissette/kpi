@@ -16,7 +16,7 @@ jobs:
            
       - name: Change Directories
         run: cd kpi/
-             
+      - run: echo 'Hello World'   
       - name: Install KPI requirements
         run: sudo pip install -r dependencies/pip/requirements.txt
         
