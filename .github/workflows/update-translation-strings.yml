@@ -1,7 +1,8 @@
 name: Update Translations
 
 on:
-  pull_request:
+  pull_request: 
+    types: [ closed ]
     branches: [ master ]
 
   workflow_dispatch:
