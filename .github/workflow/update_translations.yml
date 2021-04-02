@@ -1,0 +1,45 @@
+name: Update Translations
+
+  pull_request:
+    branches: master
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    if: github.event.pull_request.merged == 'true'
+    runs-on: ubuntu-latest-
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Apt Update
+        run: sudo apt update
+
+      - name: Change Directories
+        run: cd kpi/
+        
+      - name: Update Libraries
+        run: |
+          apt update
+          apt install translate-toolkit 
+
+      - name: Install KPI requirements
+        run: pip-sync dependencies/requirements.txt
+      
+      - name: Install translate-toolkit
+        run: 
+        
+      - name: Install Transifex
+        run: pip3 install transifex-client
+           
+      - name: Run make translation po file
+        run: ./manage.py makemessages --locale en
+
+      - name: Run json2po
+        run: json2po jsapps/compiled/extracted-strings.json locale/en/LC_MESSAGES/djangojs.po
+      
+      - name: Run Transifex
+        run: |
+            cd locale
+            tx push -s
