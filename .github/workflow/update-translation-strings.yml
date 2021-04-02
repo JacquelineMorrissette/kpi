@@ -1,0 +1,44 @@
+name: Update Translations
+
+on:
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    if: github.event.pull_request.merged == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+           
+      - name: Change Directories
+        run: cd kpi/
+      - run: echo 'Hello World'   
+      - name: Install KPI requirements
+        run: sudo pip install -r dependencies/pip/requirements.txt
+        
+      - name: Install NPM packages
+        run: npm install
+      - name: Install webpack
+        run: npm install webpack
+      - name: Run NPM build
+        run: npm run copy-fonts && npm run build
+      - name: Compile Frontend Strings
+        id: compile_strings
+        run: node ./scripts/generate_icons.js 
+        continue-on-error: true
+      - name: Install translate-toolkit
+        run: sudo apt install translate-toolkit
+        
+      - name: Install Transifex
+        run: sudo pip3 install transifex-client
+           
+      - name: Run make translation po file
+        run: sudo ./manage.py makemessages --locale en
+
+      - name: Run json2po
+        run: sudo json2po jsapp/compiled/extracted-strings.json locale/en/LC_MESSAGES/djangojs.po
+      
