@@ -21,6 +21,7 @@ from kpi.utils.object_permission import get_database_user
 
 
 class SitewideMessage(models.Model):
+    # This is another comment
     slug = models.CharField(max_length=50)
     body = MarkupField()
 
